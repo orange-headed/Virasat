@@ -18,16 +18,6 @@ export function TopNav() {
     { label: 'Heritage DNA', icon: Sparkles }
   ] as const
 
-  // Scroll active item into view on mobile
-  useEffect(() => {
-    if (scrollContainerRef.current) {
-      const activeEl = scrollContainerRef.current.querySelector('[aria-current="page"]')
-      if (activeEl) {
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
-      }
-    }
-  }, [activeScreen])
-
   return (
     <>
       <CulturalCompanion />
@@ -63,42 +53,13 @@ export function TopNav() {
           {/* Right: Profile */}
           <div className="flex items-center">
             <button
-              onClick={() => setActiveScreen('Heritage DNA')}
+              onClick={() => setActiveScreen('Profile')}
               className="grid size-10 place-items-center rounded-full bg-[#e9dfd3] text-[#A85735] transition hover:bg-[#dfd3c5]"
               aria-label="User Profile"
             >
               <UserRound size={18} />
             </button>
           </div>
-        </div>
-
-        {/* Mobile Navigation (Scrollable) */}
-        <div className="md:hidden border-t border-[#dfd8cc]/50">
-          <nav
-            ref={scrollContainerRef}
-            className="no-scrollbar flex overflow-x-auto px-4 py-2"
-            aria-label="Mobile Navigation"
-          >
-            <div className="flex gap-2">
-              {items.map(({ label }) => {
-                const isActive = activeScreen === label
-                return (
-                  <button
-                    key={label}
-                    onClick={() => setActiveScreen(label as any)}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-medium transition ${
-                      isActive
-                        ? 'bg-[#e9dfd3] text-[#A85735]'
-                        : 'text-[#68736e] hover:bg-[#f0e7dc] hover:text-[#233e3a]'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                )
-              })}
-            </div>
-          </nav>
         </div>
       </header>
     </>

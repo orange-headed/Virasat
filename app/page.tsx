@@ -9,6 +9,7 @@ import { Journey } from '@/components/journey/Journey'
 import { Saved } from '@/components/saved/Saved'
 import { DNA } from '@/components/dna/DNA'
 import { Detail } from '@/components/heritage/Detail'
+import { Profile } from '@/components/profile/Profile'
 import { AppShell } from '@/components/app-shell/AppShell'
 
 export default function Page() {
@@ -28,6 +29,8 @@ export default function Page() {
         <Journey />
       ) : activeScreen === 'Saved' ? (
         <Saved />
+      ) : activeScreen === 'Profile' ? (
+        <Profile />
       ) : (
         <DNA />
       )}

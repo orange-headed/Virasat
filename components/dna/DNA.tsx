@@ -1,86 +1,99 @@
 'use client'
 
-import React from 'react'
-import { Sparkles, RotateCcw } from 'lucide-react'
+import React, { useState } from 'react'
+import { Sparkles, Brain, Clock, ChevronRight } from 'lucide-react'
 import { useAppContext } from '@/lib/store'
 import { dnaDefaults } from '@/lib/heritage-data'
 
 export function DNA() {
-  const { dna, setDnaValue } = useAppContext()
+  const { dna, recentIds } = useAppContext()
+  const [showSliders, setShowSliders] = useState(false)
 
-  const resetDNA = () => {
-    Object.entries(dnaDefaults).forEach(([key, val]) => {
-      setDnaValue(key, val)
-    })
-  }
-
-  const averageMatch = Math.round(Object.values(dna).reduce((a, b) => a + b, 0) / Object.keys(dna).length)
+  // In a real app we'd construct reasons from actual history. 
+  // Here we'll derive some generic explanations based on recent activity.
+  const hasRecent = recentIds.length > 0
+  const topTrait = Object.entries(dna).sort((a, b) => b[1] - a[1])[0][0]
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pb-10 pt-5 md:px-8 md:pb-12">
-      <div className="mt-4 max-w-xl">
-        <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#A85735]">Personalization, with context</p>
-        <h1 className="mt-1 font-serif text-4xl leading-none text-[#233e3a] md:text-5xl">Your Heritage DNA.</h1>
-        <p className="mt-3 text-sm leading-relaxed text-[#68736e]">
-          A living picture of what draws you in. Tune it as you discover — it directly shapes your recommendations across Virasat.
+    <div className="mx-auto max-w-3xl px-5 py-8 md:px-8">
+      <div className="mb-10 text-center">
+        <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-[#e9dfd3] text-[#A85735]">
+          <Sparkles size={28} />
+        </div>
+        <h1 className="font-serif text-4xl text-[#233e3a]">Your Heritage DNA</h1>
+        <p className="mt-3 text-[#68736e]">
+          Virasat learns from the places, stories, traditions and people you choose to explore.
         </p>
       </div>
-      
-      <div className="mt-8 grid gap-4 sm:gap-6 md:grid-cols-[1fr_.8fr]">
-        <div className="rounded-3xl bg-[#233e3a] p-5 text-white shadow-inner flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] uppercase tracking-[.16em] text-[#e4b08d] font-bold">Your cultural compass</p>
-              <p className="mt-1 font-serif text-2xl md:text-3xl">Curious & rooted</p>
-            </div>
-            <Sparkles className="text-[#e4b08d]" size={20} />
+
+      <div className="mb-8 rounded-3xl bg-white p-6 shadow-sm border border-[#e2dbd0]">
+        <div className="mb-6 flex items-center justify-between border-b border-[#f0e7dc] pb-4">
+          <div className="flex items-center gap-2 text-[#233e3a]">
+            <Brain size={20} className="text-[#A85735]" />
+            <h2 className="font-serif text-2xl">Your Current Profile</h2>
           </div>
-          <div
-            className="relative mx-auto my-6 grid aspect-square max-w-[200px] w-full place-items-center rounded-full border border-white/20"
-            style={{ background: 'conic-gradient(from 20deg, #e4b08d, #a85735, #6a887b, #e4b08d)' }}
+          <button 
+            onClick={() => setShowSliders(!showSliders)}
+            className="text-xs font-semibold text-[#A85735] uppercase tracking-wider hover:underline"
           >
-            <div className="grid size-[82%] place-items-center rounded-full bg-[#233e3a] text-center shadow-lg">
-              <div>
-                <span className="block font-serif text-5xl">{averageMatch}</span>
-                <span className="block text-[10px] font-medium uppercase tracking-widest text-white/60">Affinity</span>
+            {showSliders ? 'Hide Sliders' : 'View Sliders'}
+          </button>
+        </div>
+
+        <div className="space-y-6">
+          {Object.entries(dnaDefaults).map(([key, defaultValue]) => {
+            const val = dna[key] ?? defaultValue
+            return (
+              <div key={key}>
+                <div className="mb-2 flex justify-between text-sm">
+                  <span className="font-semibold text-[#233e3a]">{key}</span>
+                  <span className="text-[#68736e]">{val}</span>
+                </div>
+                <div className="relative h-2 w-full overflow-hidden rounded-full bg-[#f0e7dc]">
+                  <div
+                    className="absolute left-0 top-0 h-full rounded-full bg-[#A85735] transition-all duration-700 ease-out"
+                    style={{ width: `${val}%` }}
+                  />
+                </div>
+                {showSliders && (
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={val}
+                    readOnly
+                    className="mt-2 w-full accent-[#A85735] opacity-50 cursor-not-allowed"
+                    title="DNA is learned from behavior, not manually set."
+                  />
+                )}
               </div>
-            </div>
-          </div>
-          <p className="text-center text-xs leading-relaxed text-white/70">
-            You lean toward places where architecture, stories and everyday life meet. Recommendations update instantly based on your values.
-          </p>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="rounded-3xl bg-[#e9dfd3] p-6 text-[#233e3a]">
+        <div className="flex items-center gap-2 mb-4">
+          <Clock size={20} className="text-[#A85735]" />
+          <h2 className="font-serif text-2xl">Why is my DNA changing?</h2>
         </div>
         
-        <div className="rounded-3xl border border-[#ded6ca] bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-serif text-2xl text-[#233e3a]">Tune your lenses</h2>
-              <p className="mt-1 text-xs text-[#68736e]">Move sliders to refine matches.</p>
-            </div>
-            <button onClick={resetDNA} className="p-2 text-[#A85735] hover:bg-[#f4efe7] rounded-full transition" aria-label="Reset DNA">
-              <RotateCcw size={16} />
-            </button>
-          </div>
-          <div className="mt-6 space-y-5">
-            {Object.entries(dna).map(([key, value]) => (
-              <label key={key} className="block group">
-                <div className="mb-1.5 flex justify-between text-xs font-medium text-[#233e3a]">
-                  <span>{key}</span>
-                  <span className="text-[#A85735]">{value}</span>
-                </div>
-                <input
-                  aria-label={`${key} interest`}
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={value}
-                  onChange={(e) => setDnaValue(key, Number(e.target.value))}
-                  className="h-1.5 w-full appearance-none rounded-full bg-[#e3dbcf] accent-[#A85735] outline-none group-hover:bg-[#d8cwb8] transition"
-                />
-              </label>
-            ))}
-          </div>
-        </div>
+        {hasRecent ? (
+          <ul className="space-y-4">
+            <li className="flex gap-3 text-sm">
+              <ChevronRight size={16} className="text-[#A85735] shrink-0 mt-0.5" />
+              <span>Your <strong className="font-semibold">{topTrait}</strong> preference increased because you recently explored heritage closely tied to it.</span>
+            </li>
+            <li className="flex gap-3 text-sm">
+              <ChevronRight size={16} className="text-[#A85735] shrink-0 mt-0.5" />
+              <span>Saving items and adding them to your Journey sends strong signals to Virasat.</span>
+            </li>
+          </ul>
+        ) : (
+          <p className="text-sm">
+            Your DNA is currently at its neutral defaults. Start exploring, reading stories, and saving heritage to see Virasat adapt to your interests!
+          </p>
+        )}
       </div>
     </div>
   )

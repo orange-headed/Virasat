@@ -7,9 +7,11 @@ import { useAppContext } from '@/lib/store'
 import { useUserLocation } from '@/lib/location/useUserLocation'
 import { getDistanceKm, formatDistance } from '@/lib/geo/distance'
 import { MapWrapper } from '@/components/map/MapWrapper'
+import { Heart, Bookmark, Plus } from 'lucide-react'
+import { calculateHeritageMatch } from '@/lib/recommendation'
 
 export function MapView() {
-  const { setDetailId } = useAppContext()
+  const { setDetailId, dna, savedIds, toggleSave, journeyIds, addToJourney } = useAppContext()
   const [selected, setSelected] = useState<HeritageItem | null>(null)
   const [activeFilter, setActiveFilter] = useState<HeritageCategory | 'All'>('All')
   
@@ -46,6 +48,19 @@ export function MapView() {
   if (selected && userCoords) {
     const dist = getDistanceKm(userCoords[0], userCoords[1], selected.coordinates[0], selected.coordinates[1])
     selectedDistance = formatDistance(dist) + ' away'
+  }
+
+  // Calculate quick score
+  let score = 50;
+  if (selected) {
+     let totalScore = 0;
+     let maxScore = 0;
+     for (const [key, userVal] of Object.entries(dna)) {
+        const itemVal = selected.dnaProfile?.[key] || 0;
+        totalScore += (userVal / 100) * (itemVal / 100) * 100;
+        maxScore += (userVal / 100) * 100;
+     }
+     score = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 50;
   }
 
   return (
@@ -113,19 +128,49 @@ export function MapView() {
 
         {/* Selected Item Preview Overlay */}
         {selected && (
-          <div className="absolute inset-x-4 bottom-4 z-20 mx-auto max-w-sm rounded-2xl bg-[#faf8f3] p-4 shadow-xl border border-[#dfd8cc]">
-            <button className="absolute right-3 top-3 text-[#68736e] hover:text-[#233e3a]" onClick={() => setSelected(null)} aria-label="Close">
+          <div className="absolute inset-x-4 bottom-4 z-20 mx-auto max-w-sm rounded-2xl bg-[#faf8f3] p-5 shadow-xl border border-[#dfd8cc]">
+            <button className="absolute right-4 top-4 text-[#68736e] hover:text-[#233e3a]" onClick={() => setSelected(null)} aria-label="Close">
               <X size={17} />
             </button>
-            <p className="text-[10px] font-semibold uppercase tracking-[.15em] text-[#A85735]">{selected.category}</p>
-            <h3 className="mt-1 font-serif text-2xl text-[#233e3a] pr-6 truncate">{selected.name}</h3>
-            <div className="mt-1 flex items-center justify-between text-xs text-[#68736e]">
+            <div className="flex gap-4 mb-3">
+              <div className="size-16 rounded-xl bg-cover bg-center shrink-0 border border-[#e2dbd0]" style={{ backgroundImage: `url(${selected.image})` }} />
+              <div className="flex-1 pr-6">
+                <p className="text-[10px] font-semibold uppercase tracking-[.15em] text-[#A85735]">{selected.category}</p>
+                <h3 className="mt-1 font-serif text-xl text-[#233e3a] leading-tight line-clamp-2">{selected.name}</h3>
+              </div>
+            </div>
+            
+            <div className="mb-4 flex items-center justify-between text-xs text-[#68736e]">
               <span className="flex items-center gap-1"><MapPin size={12} /> {selected.location}</span>
               {selectedDistance && <span className="font-medium text-[#A85735]">{selectedDistance}</span>}
             </div>
-            <button onClick={() => setDetailId(selected.id)} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#A85735] py-2.5 text-sm font-semibold text-white transition hover:bg-[#8f472a]">
-              Explore heritage <ChevronRight size={16} />
-            </button>
+
+            <div className="mb-4 rounded-lg bg-[#f4efe7] p-2 text-xs flex justify-between items-center">
+              <div>
+                <div className="font-semibold text-[#233e3a]">{score}% match</div>
+                <div className="mt-0.5 text-[#A85735] line-clamp-1">Personalized for you</div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setDetailId(selected.id)} className="flex items-center justify-center gap-2 rounded-xl bg-[#A85735] py-2.5 text-xs font-semibold text-white transition hover:bg-[#8f472a]">
+                Explore <ChevronRight size={14} />
+              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => toggleSave(selected)}
+                  className="flex-1 flex items-center justify-center rounded-xl bg-white border border-[#dfd8cc] text-[#233e3a] transition hover:bg-[#f4efe7]"
+                >
+                  {savedIds.includes(selected.id) ? <Heart fill="#A85735" stroke="#A85735" size={16} /> : <Bookmark size={16} />}
+                </button>
+                <button
+                  onClick={() => !journeyIds.includes(selected.id) && addToJourney(selected.id)}
+                  className={`flex-1 flex items-center justify-center rounded-xl border transition ${journeyIds.includes(selected.id) ? 'bg-[#A85735] border-[#A85735] text-white' : 'bg-white border-[#dfd8cc] text-[#233e3a] hover:bg-[#f4efe7]'}`}
+                >
+                  {journeyIds.includes(selected.id) ? <Navigation size={16} /> : <Plus size={16} />}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
