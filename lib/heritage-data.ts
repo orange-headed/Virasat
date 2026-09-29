@@ -134,7 +134,7 @@ export const people: CulturalPerson[] = [
   { id: 'anjali', name: 'Anjali Saikia', role: 'Folk arts researcher', location: 'Majuli, Assam', years: '12 years with Sattriya communities', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80', offering: 'Mask-making & Bhaona theatre' },
 ]
 
-export const dnaDefaults = { Architecture: 50, Stories: 50, Crafts: 50, Food: 50, Music: 50, Traditions: 50 }
+export const dnaDefaults = { Architecture: 0, Stories: 0, Crafts: 0, Food: 0, Music: 0, Traditions: 0 }
 
 export function recommendHeritage(dna: Record<string, number>, items = heritageItems) {
   return [...items].sort((a, b) => ((b.match ?? 0) + (dna[a.category] ?? 50) / 5) - ((a.match ?? 0) + (dna[b.category] ?? 50) / 5))

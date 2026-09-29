@@ -25,6 +25,8 @@ type AppState = {
   setCompanionPrompt: (prompt: string | null) => void
   userLocation: [number, number]
   setUserLocation: (loc: [number, number]) => void
+  theme: 'light' | 'dark' | 'virasat'
+  setTheme: (theme: 'light' | 'dark' | 'virasat') => void
 }
 
 const AppContext = createContext<AppState | null>(null)
@@ -41,6 +43,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [companionOpen, setCompanionOpen] = useState(false)
   const [companionPrompt, setCompanionPrompt] = useState<string | null>(null)
   const [userLocation, setUserLocation] = useState<[number, number]>(locationCoordinates)
+  const [theme, setThemeState] = useState<'light' | 'dark' | 'virasat'>('virasat')
 
   useEffect(() => {
     try {
@@ -52,8 +55,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (j) setJourneyIds(JSON.parse(j))
       const r = localStorage.getItem('virasat-recent')
       if (r) setRecentIds(JSON.parse(r))
+      
+      const t = localStorage.getItem('virasat-theme')
+      if (t === 'light' || t === 'dark' || t === 'virasat') {
+        setThemeState(t)
+        document.documentElement.setAttribute('data-theme', t)
+      } else {
+        document.documentElement.setAttribute('data-theme', 'virasat')
+      }
     } catch {}
   }, [])
+
+  const setTheme = (newTheme: 'light' | 'dark' | 'virasat') => {
+    setThemeState(newTheme)
+    localStorage.setItem('virasat-theme', newTheme)
+    document.documentElement.setAttribute('data-theme', newTheme)
+  }
 
   const trackInteraction = (id: string, action: ActionType) => {
     // 1. Update Recent
@@ -157,7 +174,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         companionPrompt,
         setCompanionPrompt,
         userLocation,
-        setUserLocation
+        setUserLocation,
+        theme,
+        setTheme
       }}
     >
       {children}

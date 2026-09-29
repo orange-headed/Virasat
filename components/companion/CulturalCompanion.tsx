@@ -17,41 +17,41 @@ function BuddyAvatar({ state }: { state: BuddyState }) {
     <div className={`relative flex items-center justify-center transition-transform duration-500 cursor-pointer ${isExcited ? 'animate-bounce' : isThinking ? 'animate-pulse' : ''}`}>
       <svg width="56" height="56" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-lg">
         {/* Body */}
-        <path d="M32 10C19.85 10 10 19.85 10 32V46C10 51.523 14.477 56 20 56H44C49.523 56 54 51.523 54 46V32C54 19.85 44.15 10 32 10Z" fill="#A85735"/>
+        <path d="M32 10C19.85 10 10 19.85 10 32V46C10 51.523 14.477 56 20 56H44C49.523 56 54 51.523 54 46V32C54 19.85 44.15 10 32 10Z" className="fill-buddy-accent"/>
         {/* Face plate */}
-        <path d="M18 28C18 23.582 24.268 20 32 20C39.732 20 46 23.582 46 28V42C46 46.418 39.732 50 32 50C24.268 50 18 46.418 18 42V28Z" fill="#F4EFE7"/>
+        <path d="M18 28C18 23.582 24.268 20 32 20C39.732 20 46 23.582 46 28V42C46 46.418 39.732 50 32 50C24.268 50 18 46.418 18 42V28Z" className="fill-buddy-surface"/>
         
         {/* Eyes */}
         {!isConcerned && (
           <>
-            <circle cx="26" cy="34" r="3.5" fill="#233E3A" className={isExcited ? 'animate-pulse' : ''} />
-            <circle cx="38" cy="34" r="3.5" fill="#233E3A" className={isExcited ? 'animate-pulse' : ''} />
+            <circle cx="26" cy="34" r="3.5" className={`fill-buddy-primary ${isExcited ? 'animate-pulse' : ''}`} />
+            <circle cx="38" cy="34" r="3.5" className={`fill-buddy-primary ${isExcited ? 'animate-pulse' : ''}`} />
           </>
         )}
         {isConcerned && (
           <>
-            <path d="M23 33 Q26 30 29 35" stroke="#233E3A" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            <path d="M35 35 Q38 30 41 33" stroke="#233E3A" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M23 33 Q26 30 29 35" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" className="text-buddy-primary" />
+            <path d="M35 35 Q38 30 41 33" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" className="text-buddy-primary" />
           </>
         )}
         
         {/* Blushes */}
         {isExcited && (
           <>
-            <ellipse cx="21" cy="38" rx="2.5" ry="1.5" fill="#E4B08D" />
-            <ellipse cx="43" cy="38" rx="2.5" ry="1.5" fill="#E4B08D" />
+            <ellipse cx="21" cy="38" rx="2.5" ry="1.5" className="fill-buddy-primary opacity-30" />
+            <ellipse cx="43" cy="38" rx="2.5" ry="1.5" className="fill-buddy-primary opacity-30" />
           </>
         )}
         
         {/* Mouth */}
         {!isThinking && !isConcerned && (
-           <path d="M30 41 Q32 43 34 41" stroke="#233E3A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+           <path d="M30 41 Q32 43 34 41" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" className="text-buddy-primary"/>
         )}
         {isThinking && (
-           <circle cx="32" cy="41" r="2" fill="#233E3A" />
+           <circle cx="32" cy="41" r="2" className="fill-buddy-primary" />
         )}
         {isConcerned && (
-           <path d="M30 42 Q32 40 34 42" stroke="#233E3A" strokeWidth="2" fill="none" strokeLinecap="round"/>
+           <path d="M30 42 Q32 40 34 42" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" className="text-buddy-primary"/>
         )}
       </svg>
     </div>
@@ -128,9 +128,9 @@ export function CulturalCompanion() {
           <div className="mb-2 self-end" onClick={close} role="button" aria-label="Close buddy">
             <BuddyAvatar state={state} />
           </div>
-          <div className="w-full rounded-3xl bg-[#faf8f3] border border-[#d9d0c3] p-5 shadow-2xl">
+          <div className="w-full rounded-3xl bg-surface border border-border p-5 shadow-2xl">
             <div className="flex justify-between items-start mb-4">
-              <h3 className="font-serif text-[22px] text-[#233e3a] pr-4 leading-snug">
+              <h3 className="font-serif text-[22px] text-primary pr-4 leading-snug">
                 {response ? response : getGreeting()}
               </h3>
             </div>
@@ -141,7 +141,7 @@ export function CulturalCompanion() {
                   <button
                     key={s}
                     onClick={() => handleAction(s)}
-                    className="w-full rounded-2xl bg-white border border-[#e6dfd5] p-3 text-left text-sm text-[#A85735] font-semibold transition hover:border-[#A85735] hover:bg-[#f4efe7]"
+                    className="w-full rounded-2xl bg-surface-elevated border border-border p-3 text-left text-sm text-accent font-semibold transition hover:border-accent hover:bg-surface"
                   >
                     {s}
                   </button>
@@ -152,7 +152,7 @@ export function CulturalCompanion() {
             {response && (
               <button 
                 onClick={() => { setResponse(null); setState('LISTENING') }}
-                className="mt-4 rounded-full px-4 py-2 bg-[#e9dfd3] text-xs font-semibold uppercase tracking-widest text-[#A85735] hover:bg-[#dfd3c5] transition"
+                className="mt-4 rounded-full px-4 py-2 bg-surface-elevated text-xs font-semibold uppercase tracking-widest text-accent hover:bg-border transition border border-border"
               >
                 ← Ask something else
               </button>

@@ -25,7 +25,7 @@ export function TopNav() {
     <>
       <CulturalCompanion />
       <header 
-        className={`sticky top-0 z-40 border-b border-[#dfd8cc] bg-[#faf8f3]/95 backdrop-blur-md transition-transform duration-300 ease-in-out motion-reduce:transition-none ${
+        className={`sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-md transition-transform duration-300 ease-in-out motion-reduce:transition-none ${
           isHidden ? '-translate-y-full' : 'translate-y-0'
         }`}
       >
@@ -46,8 +46,8 @@ export function TopNav() {
                   aria-current={isActive ? 'page' : undefined}
                   className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition active:scale-95 ${
                     isActive
-                      ? 'bg-[#233e3a] text-white shadow-sm'
-                      : 'text-[#68736e] hover:bg-[#e9dfd3] hover:text-[#233e3a]'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted hover:bg-surface-elevated hover:text-primary'
                   }`}
                 >
                   <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
@@ -61,7 +61,7 @@ export function TopNav() {
           <div className="flex items-center">
             <button
               onClick={() => setActiveScreen('Profile')}
-              className="grid size-10 place-items-center rounded-full bg-[#e9dfd3] text-[#233e3a] transition hover:bg-[#dfd3c5] active:scale-95"
+              className="grid size-10 place-items-center rounded-full bg-surface-elevated text-primary transition hover:hover:bg-surface-elevated active:scale-95"
               aria-label="User Profile"
             >
               <UserRound size={18} />

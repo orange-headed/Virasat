@@ -13,9 +13,9 @@ export function Saved() {
   return (
     <div className="mx-auto max-w-5xl px-5 pb-10 pt-5 md:px-8 md:pb-12">
       <div className="mt-4">
-        <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#A85735]">Your collection</p>
-        <h1 className="mt-1 font-serif text-4xl leading-none text-[#233e3a]">Saved heritage.</h1>
-        <p className="mt-2 text-sm text-[#68736e]">Places and stories you want to return to.</p>
+        <p className="text-xs font-semibold uppercase tracking-[.16em] text-accent">Your collection</p>
+        <h1 className="mt-1 font-serif text-4xl leading-none text-primary">Saved heritage.</h1>
+        <p className="mt-2 text-sm text-muted">Places and stories you want to return to.</p>
       </div>
       {items.length ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -28,13 +28,13 @@ export function Saved() {
           ))}
         </div>
       ) : (
-        <div className="mt-10 grid min-h-[300px] place-items-center rounded-3xl border border-dashed border-[#d7cfc2] bg-[#f4efe7] p-8 text-center">
+        <div className="mt-10 grid min-h-[300px] place-items-center rounded-3xl border border-dashed border-border bg-background p-8 text-center">
           <div>
-            <div className="mx-auto grid size-12 place-items-center rounded-full bg-[#e9dfd3] text-[#A85735]">
+            <div className="mx-auto grid size-12 place-items-center rounded-full bg-surface-elevated text-accent">
               <Bookmark size={20} />
             </div>
-            <h2 className="mt-4 font-serif text-2xl text-[#233e3a]">Your collection is quiet.</h2>
-            <p className="mx-auto mt-2 max-w-xs text-xs leading-relaxed text-[#68736e]">
+            <h2 className="mt-4 font-serif text-2xl text-primary">Your collection is quiet.</h2>
+            <p className="mx-auto mt-2 max-w-xs text-xs leading-relaxed text-muted">
               Save places, stories, people and traditions as you explore Virasat.
             </p>
           </div>

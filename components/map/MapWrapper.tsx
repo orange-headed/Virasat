@@ -7,8 +7,8 @@ import React from 'react'
 const DynamicMap = dynamic(() => import('./HeritageMap'), {
   ssr: false,
   loading: () => (
-    <div className="h-full w-full bg-[#e6e0d4] flex items-center justify-center animate-pulse">
-      <p className="text-[#A85735] text-sm font-semibold uppercase tracking-widest">Loading Map...</p>
+    <div className="h-full w-full bg-border/30 flex items-center justify-center animate-pulse">
+      <p className="text-accent text-sm font-semibold uppercase tracking-widest">Loading Map...</p>
     </div>
   )
 })
