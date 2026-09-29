@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { dnaDefaults, HeritageItem, type NavItem, locationCoordinates, heritageItems } from '@/lib/heritage-data'
-import { ActionType, calculateNewDNA } from '@/lib/recommendation'
+import { RecommendationResult, getRecommendedHeritage } from '@/lib/recommendation'
+import { InteractionAction, InteractionEvent, deriveDNAFromBehavior, getInitialDNA } from '@/lib/personalization'
 
 type AppState = {
   activeScreen: NavItem
@@ -18,7 +19,7 @@ type AppState = {
   dna: Record<string, number>
   setDnaValue: (key: string, value: number) => void
   recentIds: string[]
-  trackInteraction: (id: string, action: ActionType) => void
+  trackInteraction: (id: string, action: InteractionAction) => void
   companionOpen: boolean
   setCompanionOpen: (open: boolean) => void
   companionPrompt: string | null
@@ -47,13 +48,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
+      // CLEAR OLD DATA!
+      localStorage.removeItem('virasat-heritage-dna')
+      localStorage.removeItem('virasat-behavior-history')
+      localStorage.removeItem('virasat-recent')
+      localStorage.removeItem('virasat-dna-deltas')
+
       const s = localStorage.getItem('virasat-saved')
       if (s) setSavedIds(JSON.parse(s))
-      const d = localStorage.getItem('virasat-heritage-dna')
-      if (d) setDnaState(JSON.parse(d))
       const j = localStorage.getItem('virasat-journey')
       if (j) setJourneyIds(JSON.parse(j))
-      const r = localStorage.getItem('virasat-recent')
+      
+      const d = localStorage.getItem('virasat-dna-v2')
+      if (d) {
+        setDnaState(JSON.parse(d))
+      } else {
+        setDnaState(getInitialDNA())
+      }
+      
+      const r = localStorage.getItem('virasat-recent-v2')
       if (r) setRecentIds(JSON.parse(r))
       
       const t = localStorage.getItem('virasat-theme')
@@ -64,6 +77,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         document.documentElement.setAttribute('data-theme', 'virasat')
       }
     } catch {}
+    
+    if (typeof window !== 'undefined') {
+      ;(window as any).resetVirasatPersonalization = () => {
+        localStorage.removeItem('virasat-dna-v2')
+        localStorage.removeItem('virasat-behavior-v2')
+        localStorage.removeItem('virasat-recent-v2')
+        // We explicitly keep savedIds and journeyIds intact as they are valid app state,
+        // but we flush all learned personalization.
+        setDnaState(getInitialDNA())
+        setRecentIds([])
+        console.log('✅ Virasat personalization reset (v2). DNA is now 0. Refreshing...')
+        setTimeout(() => window.location.reload(), 500)
+      }
+    }
   }, [])
 
   const setTheme = (newTheme: 'light' | 'dark' | 'virasat') => {
@@ -72,53 +99,83 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute('data-theme', newTheme)
   }
 
-  const trackInteraction = (id: string, action: ActionType) => {
+  const recalculateDNA = () => {
+    setDnaState(prevDna => {
+      let activeSavedIds = savedIds
+      let activeJourneyIds = journeyIds
+      let history: InteractionEvent[] = []
+      try {
+        activeSavedIds = JSON.parse(localStorage.getItem('virasat-saved') || '[]')
+        activeJourneyIds = JSON.parse(localStorage.getItem('virasat-journey') || '[]')
+        history = JSON.parse(localStorage.getItem('virasat-behavior-v2') || '[]')
+      } catch {}
+
+      const nextDNA = deriveDNAFromBehavior(history, activeSavedIds, activeJourneyIds, heritageItems)
+      localStorage.setItem('virasat-dna-v2', JSON.stringify(nextDNA))
+      
+      console.log(`[DNA DEBUG] Recalculated. Before: ${JSON.stringify(prevDna)}, After: ${JSON.stringify(nextDNA)}`)
+      return nextDNA
+    })
+  }
+
+  const trackInteraction = (id: string, action: InteractionAction) => {
     // 1. Update Recent
     if (action === 'VIEW' || action === 'OPEN_DETAIL') {
       const nextRecent = [id, ...recentIds.filter(i => i !== id)].slice(0, 10)
       setRecentIds(nextRecent)
-      localStorage.setItem('virasat-recent', JSON.stringify(nextRecent))
+      localStorage.setItem('virasat-recent-v2', JSON.stringify(nextRecent))
     }
 
-    // 2. Update DNA
+    // 2. Update DNA via Behavior History (Source of Truth)
     const item = heritageItems.find(i => i.id === id)
     if (item && item.dnaProfile) {
-      const nextDNA = calculateNewDNA(dna, item.dnaProfile, action)
-      setDnaState(nextDNA)
-      localStorage.setItem('virasat-heritage-dna', JSON.stringify(nextDNA))
-      
-      // Also log behavior history for debug/transparency
+      // Log behavior history
+      let history: InteractionEvent[] = []
       try {
-        const history = JSON.parse(localStorage.getItem('virasat-behavior-history') || '[]')
+        history = JSON.parse(localStorage.getItem('virasat-behavior-v2') || '[]')
         history.unshift({ id, action, timestamp: Date.now() })
-        localStorage.setItem('virasat-behavior-history', JSON.stringify(history.slice(0, 50)))
+        history = history.slice(0, 50)
+        localStorage.setItem('virasat-behavior-v2', JSON.stringify(history))
       } catch {}
+
+      recalculateDNA()
     }
   }
 
   const toggleSave = (item: HeritageItem) => {
-    const next = savedIds.includes(item.id)
-      ? savedIds.filter((id) => id !== item.id)
-      : [...savedIds, item.id]
-    setSavedIds(next)
-    localStorage.setItem('virasat-saved', JSON.stringify(next))
-    trackInteraction(item.id, savedIds.includes(item.id) ? 'UNSAVE' : 'SAVE')
+    setSavedIds(prev => {
+      const isSaved = prev.includes(item.id)
+      const next = isSaved
+        ? prev.filter((id) => id !== item.id)
+        : [...prev, item.id]
+      localStorage.setItem('virasat-saved', JSON.stringify(next))
+      setTimeout(() => recalculateDNA(), 0)
+      return next
+    })
   }
 
   const addToJourney = (id: string) => {
-    if (!journeyIds.includes(id)) {
-      const next = [...journeyIds, id]
-      setJourneyIds(next)
-      localStorage.setItem('virasat-journey', JSON.stringify(next))
-      trackInteraction(id, 'ADD_TO_JOURNEY')
-    }
+    setJourneyIds(prev => {
+      if (!prev.includes(id)) {
+        const next = [...prev, id]
+        localStorage.setItem('virasat-journey', JSON.stringify(next))
+        setTimeout(() => recalculateDNA(), 0)
+        return next
+      }
+      return prev
+    })
   }
 
   const removeFromJourney = (id: string) => {
-    const next = journeyIds.filter(i => i !== id)
-    setJourneyIds(next)
-    localStorage.setItem('virasat-journey', JSON.stringify(next))
-    trackInteraction(id, 'REMOVE_FROM_JOURNEY')
+    setJourneyIds(prev => {
+      if (prev.includes(id)) {
+        const next = prev.filter(i => i !== id)
+        localStorage.setItem('virasat-journey', JSON.stringify(next))
+        setTimeout(() => recalculateDNA(), 0)
+        return next
+      }
+      return prev
+    })
   }
   
   const moveJourneyItem = (index: number, direction: 'up' | 'down') => {
@@ -137,7 +194,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const setDnaValue = (key: string, value: number) => {
     const next = { ...dna, [key]: value }
     setDnaState(next)
-    localStorage.setItem('virasat-heritage-dna', JSON.stringify(next))
+    localStorage.setItem('virasat-dna-v2', JSON.stringify(next))
   }
 
   const handleSetActiveScreen = (screen: NavItem) => {
