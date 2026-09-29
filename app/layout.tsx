@@ -1,9 +1,10 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { AppProvider } from '@/lib/store'
 
 export const metadata: Metadata = {
-  title: 'Samskara — India, understood through its living heritage',
+  title: 'Virasat — India, understood through its living heritage',
   description: 'Discover the stories, architecture, traditions and people behind India’s living cultural heritage.',
   generator: 'v0.app',
   icons: {
@@ -41,8 +42,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <AppProvider>
+          {children}
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </AppProvider>
       </body>
     </html>
   )
