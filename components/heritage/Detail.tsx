@@ -5,8 +5,9 @@ import { ChevronRight, MapPin, Heart, Bookmark, Plus, Navigation, ExternalLink, 
 import { type HeritageItem, heritageItems } from '@/lib/heritage-data'
 import { useAppContext } from '@/lib/store'
 import { imageStyle } from '@/lib/utils'
-import { ActionType } from '@/lib/recommendation'
+import { InteractionAction } from '@/lib/personalization'
 import { ImageCard } from '@/components/heritage/ImageCard'
+import { triggerBuddyEvent } from '@/lib/buddy/events'
 
 export function Detail({ item }: { item: HeritageItem }) {
   const { setDetailId, savedIds, toggleSave, journeyIds, addToJourney, setActiveScreen, trackInteraction, dna } = useAppContext()
@@ -18,12 +19,14 @@ export function Detail({ item }: { item: HeritageItem }) {
   const onBack = () => setDetailId(null)
   const onSave = () => toggleSave(item)
 
-  const handleExpand = (title: string, action: ActionType) => {
+  const handleExpand = (title: string, action: InteractionAction) => {
     if (expandedSection === title) {
       setExpandedSection(null)
+      import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_IDLE' }))
     } else {
       setExpandedSection(title)
       trackInteraction(item.id, action)
+      import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_EXPLAIN' }))
     }
   }
 
@@ -37,6 +40,20 @@ export function Detail({ item }: { item: HeritageItem }) {
   const related = item.relatedHeritageIds
     ? item.relatedHeritageIds.map(id => heritageItems.find(i => i.id === id)).filter(Boolean) as HeritageItem[]
     : []
+
+  React.useEffect(() => {
+    import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_THINKING' }))
+    
+    const t = setTimeout(() => {
+      if (matchedTraits.length > 0) {
+        import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_DNA_MATCH', payload: { matchPercentage: matchedTraits[0].itemScore } }))
+      } else {
+        import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_IDLE' }))
+      }
+    }, 1200)
+    
+    return () => clearTimeout(t)
+  }, [item.id])
 
   return (
     <div className="mx-auto max-w-4xl px-5 pb-10 pt-4 md:px-8 md:pb-16">

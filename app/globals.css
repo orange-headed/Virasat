@@ -87,14 +87,9 @@
     --buddy-outline: #262626;
     --buddy-accent: #f97316;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
   body {
-    @apply bg-background text-foreground transition-colors duration-300 ease-in-out motion-reduce:transition-none;
+    @apply bg-background text-foreground transition-colors duration-300 ease-in-out motion-reduce:transition-none overflow-x-hidden;
     font-family: Arial, Helvetica, sans-serif;
   }
   button, input {

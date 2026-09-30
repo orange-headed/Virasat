@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { AppProvider } from '@/lib/store'
+import { BuddyController } from '@/components/buddy/BuddyController'
 
 export const metadata: Metadata = {
   title: 'Virasat — India, understood through its living heritage',
@@ -40,11 +41,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <AppProvider>
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
+          <BuddyController />
         </AppProvider>
       </body>
     </html>

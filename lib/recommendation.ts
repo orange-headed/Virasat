@@ -31,7 +31,7 @@ export function getRecommendedHeritage(
       }
     }
 
-    const normalizedScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 50
+    const normalizedScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0
     matchedCategories.sort((a, b) => b.score - a.score)
     const topMatches = matchedCategories.slice(0, 2).map(c => c.category)
 

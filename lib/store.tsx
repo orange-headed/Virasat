@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { dnaDefaults, HeritageItem, type NavItem, locationCoordinates, heritageItems } from '@/lib/heritage-data'
 import { RecommendationResult, getRecommendedHeritage } from '@/lib/recommendation'
 import { InteractionAction, InteractionEvent, deriveDNAFromBehavior, getInitialDNA } from '@/lib/personalization'
+import { triggerBuddyEvent } from '@/lib/buddy/events'
 
 type AppState = {
   activeScreen: NavItem
@@ -88,7 +89,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setDnaState(getInitialDNA())
         setRecentIds([])
         console.log('✅ Virasat personalization reset (v2). DNA is now 0. Refreshing...')
-        setTimeout(() => window.location.reload(), 500)
+        
+        triggerBuddyEvent({ type: 'BUDDY_REBOOT' })
+        
+        setTimeout(() => window.location.reload(), 2500)
       }
     }
   }, [])
@@ -139,6 +143,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch {}
 
       recalculateDNA()
+      
+      // Trigger buddy event for tracking interactions
+      if (action === 'OPEN_DETAIL') {
+        triggerBuddyEvent({ type: 'BUDDY_THINKING' })
+      } else if (action === 'SEARCH') {
+        triggerBuddyEvent({ type: 'BUDDY_THINKING' })
+      }
     }
   }
 
@@ -150,6 +161,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         : [...prev, item.id]
       localStorage.setItem('virasat-saved', JSON.stringify(next))
       setTimeout(() => recalculateDNA(), 0)
+      
+      if (!isSaved) {
+        triggerBuddyEvent({ type: 'BUDDY_FAVORITED' })
+      }
       return next
     })
   }
@@ -157,6 +172,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addToJourney = (id: string) => {
     setJourneyIds(prev => {
       if (!prev.includes(id)) {
+        triggerBuddyEvent({ type: 'BUDDY_JOURNEY_ADD' })
         const next = [...prev, id]
         localStorage.setItem('virasat-journey', JSON.stringify(next))
         setTimeout(() => recalculateDNA(), 0)
@@ -199,6 +215,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const handleSetActiveScreen = (screen: NavItem) => {
     setDetailId(null);
+    if (activeScreen !== screen) {
+      triggerBuddyEvent({ type: 'BUDDY_GREETING' })
+    }
     setActiveScreen(screen);
   }
   

@@ -8,8 +8,7 @@ import { useUserLocation } from '@/lib/location/useUserLocation'
 import { getDistanceKm, formatDistance } from '@/lib/geo/distance'
 import { MapWrapper } from '@/components/map/MapWrapper'
 import { Heart, Bookmark, Plus } from 'lucide-react'
-import { calculateHeritageMatch } from '@/lib/recommendation'
-
+import { triggerBuddyEvent } from '@/lib/buddy/events'
 export function MapView() {
   const { setDetailId, dna, savedIds, toggleSave, journeyIds, addToJourney } = useAppContext()
   const [selected, setSelected] = useState<HeritageItem | null>(null)
@@ -39,6 +38,14 @@ export function MapView() {
       setMapCenter({ center: [latitude, longitude], zoom: 8 })
     }
   }, [latitude, longitude])
+
+  React.useEffect(() => {
+    if (locLoading) {
+      triggerBuddyEvent({ type: 'BUDDY_MAP_LOADING' })
+    } else {
+      triggerBuddyEvent({ type: 'BUDDY_IDLE' })
+    }
+  }, [locLoading])
 
   const resetIndiaView = () => {
     setMapCenter({ center: [20.5937, 78.9629], zoom: 5 })
@@ -161,7 +168,7 @@ export function MapView() {
                   onClick={() => toggleSave(selected)}
                   className="flex-1 flex items-center justify-center rounded-xl bg-surface-elevated border border-border text-primary transition hover:bg-background"
                 >
-                  {savedIds.includes(selected.id) ? <Heart className="fill-accent" stroke="currentColor" className="text-accent" size={16} /> : <Bookmark size={16} />}
+                  {savedIds.includes(selected.id) ? <Heart stroke="currentColor" className="fill-accent text-accent" size={16} /> : <Bookmark size={16} />}
                 </button>
                 <button
                   onClick={() => !journeyIds.includes(selected.id) && addToJourney(selected.id)}

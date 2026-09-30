@@ -43,6 +43,16 @@ export function Discover() {
     }
   }
 
+  React.useEffect(() => {
+    if (query.trim()) {
+      import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_THINKING' }))
+      const t = setTimeout(() => {
+        import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_IDLE' }))
+      }, 800)
+      return () => clearTimeout(t)
+    }
+  }, [query])
+
   const handleLens = (label: string) => {
     if (activeLens === label) {
       setActiveLens(null)
@@ -164,7 +174,7 @@ export function Discover() {
                 </div>
                 <div className="mt-5 space-y-3 flex-1">
                   {Object.entries(dnaDefaults).slice(0, 4).map(([key]) => {
-                    const val = dna[key] ?? 50
+                    const val = dna[key] ?? 0
                     return (
                       <div key={key}>
                         <div className="mb-1 flex justify-between text-[11px]">
