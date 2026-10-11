@@ -5,6 +5,7 @@ import { Heart, Bookmark, MapPin, Plus, Navigation, ChevronRight } from 'lucide-
 import { type HeritageItem } from '@/lib/heritage-data'
 import { imageStyle } from '@/lib/utils'
 import { useAppContext } from '@/lib/store'
+import { triggerBuddyEvent } from '@/lib/buddy/events'
 
 export function ImageCard({ 
   item, 
@@ -80,7 +81,12 @@ export function ImageCard({
         )}
         
         <div className="mt-auto pt-2 border-t border-border">
-          <button onClick={onOpen} className="flex w-full items-center justify-center gap-2 rounded-xl bg-transparent py-2 text-xs font-semibold text-primary transition hover:bg-background">
+          <button onClick={() => {
+            if (score) {
+              triggerBuddyEvent({ type: 'BUDDY_DNA_MATCH' })
+            }
+            onOpen()
+          }} className="flex w-full items-center justify-center gap-2 rounded-xl bg-transparent py-2 text-xs font-semibold text-primary transition hover:bg-background">
             Explore heritage <ChevronRight size={14} />
           </button>
         </div>

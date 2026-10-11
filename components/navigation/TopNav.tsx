@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react'
 import { Compass, MapPin, Navigation, Bookmark, Sparkles, UserRound } from 'lucide-react'
 import { useAppContext } from '@/lib/store'
-import { CulturalCompanion } from '@/components/companion/CulturalCompanion'
+
 import { Logo } from '@/components/app-shell/Logo'
 import { useScrollDirection } from '@/lib/useScrollDirection'
 
@@ -23,7 +23,7 @@ export function TopNav() {
 
   return (
     <>
-      <CulturalCompanion />
+
       <header 
         className={`sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-md transition-transform duration-300 ease-in-out motion-reduce:transition-none ${
           isHidden ? '-translate-y-full' : 'translate-y-0'

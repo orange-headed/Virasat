@@ -7,6 +7,7 @@ import { categories, dnaDefaults, heritageItems, profile } from '@/lib/heritage-
 import { useAppContext } from '@/lib/store'
 import { imageStyle } from '@/lib/utils'
 import { getRecommendedHeritage } from '@/lib/recommendation'
+import { triggerBuddyEvent } from '@/lib/buddy/events'
 
 export function Discover() {
   const { setDetailId, setActiveScreen, dna, journeyIds, addToJourney, trackInteraction, recentIds } = useAppContext()
@@ -43,15 +44,7 @@ export function Discover() {
     }
   }
 
-  React.useEffect(() => {
-    if (query.trim()) {
-      import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_THINKING' }))
-      const t = setTimeout(() => {
-        import('@/lib/buddy/events').then(m => m.triggerBuddyEvent({ type: 'BUDDY_IDLE' }))
-      }, 800)
-      return () => clearTimeout(t)
-    }
-  }, [query])
+
 
   const handleLens = (label: string) => {
     if (activeLens === label) {
@@ -147,7 +140,10 @@ export function Discover() {
                     <h3 className="font-serif text-3xl">{featured.item.name}</h3>
                     <p className="mt-1 max-w-md text-sm text-primary-foreground/80 line-clamp-2">{featured.item.significance}</p>
                     <div className="mt-4 flex flex-wrap items-center gap-3">
-                      <button onClick={() => setDetailId(featured.item.id)} className="flex items-center gap-1.5 rounded-full bg-surface-elevated/20 px-4 py-2 text-sm font-semibold text-primary-foreground backdrop-blur transition hover:bg-surface-elevated/30">
+                      <button onClick={() => {
+                        triggerBuddyEvent({ type: 'BUDDY_DNA_MATCH' })
+                        setDetailId(featured.item.id)
+                      }} className="flex items-center gap-1.5 rounded-full bg-surface-elevated/20 px-4 py-2 text-sm font-semibold text-primary-foreground backdrop-blur transition hover:bg-surface-elevated/30">
                         Explore <ChevronRight size={16} />
                       </button>
                       {!inJourney ? (

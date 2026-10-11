@@ -2,7 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { AppProvider } from '@/lib/store'
-import { BuddyController } from '@/components/buddy/BuddyController'
+import { BuddyControllerWrapper } from '@/components/buddy/BuddyControllerWrapper'
 
 export const metadata: Metadata = {
   title: 'Virasat — India, understood through its living heritage',
@@ -46,7 +46,7 @@ export default function RootLayout({
         <AppProvider>
           {children}
           {process.env.NODE_ENV === 'production' && <Analytics />}
-          <BuddyController />
+          <BuddyControllerWrapper />
         </AppProvider>
       </body>
     </html>

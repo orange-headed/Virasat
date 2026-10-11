@@ -146,7 +146,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       
       // Trigger buddy event for tracking interactions
       if (action === 'OPEN_DETAIL') {
-        triggerBuddyEvent({ type: 'BUDDY_THINKING' })
+        triggerBuddyEvent({ type: 'BUDDY_EXPLAIN' })
       } else if (action === 'SEARCH') {
         triggerBuddyEvent({ type: 'BUDDY_THINKING' })
       }
@@ -164,6 +164,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       
       if (!isSaved) {
         triggerBuddyEvent({ type: 'BUDDY_FAVORITED' })
+      } else {
+        triggerBuddyEvent({ type: 'BUDDY_IDLE' })
       }
       return next
     })

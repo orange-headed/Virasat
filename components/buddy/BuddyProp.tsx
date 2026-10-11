@@ -174,8 +174,8 @@ function MapGeometry() {
         <boxGeometry args={[0.015, 0.7, 0.01]} />
         <meshStandardMaterial color="#e0d5c1" />
       </mesh>
-      <mesh position={[0.1, 0.15, 0.015]}>
-        <cylinderGeometry args={[0.03, 0.01, 0.02, 8]} rotation={[Math.PI/2, 0, 0]} />
+      <mesh position={[0.1, 0.15, 0.015]} rotation={[Math.PI/2, 0, 0]}>
+        <cylinderGeometry args={[0.03, 0.01, 0.02, 8]} />
         <meshStandardMaterial color="#e4b08d" />
       </mesh>
       <mesh position={[-0.1, -0.1, 0.012]} rotation={[0, 0, 0.4]}>
@@ -199,12 +199,12 @@ function InfoGeometry() {
         <meshStandardMaterial color="#faf9f6" roughness={0.8} />
       </mesh>
       {/* Scroll headers/footers */}
-      <mesh position={[0, 0.45, 0.01]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.75]} rotation={[0, 0, Math.PI/2]} />
+      <mesh position={[0, 0.45, 0.01]} rotation={[0, 0, Math.PI/2]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.75]} />
         <meshStandardMaterial color="#b39b7d" />
       </mesh>
-      <mesh position={[0, -0.45, 0.01]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.75]} rotation={[0, 0, Math.PI/2]} />
+      <mesh position={[0, -0.45, 0.01]} rotation={[0, 0, Math.PI/2]}>
+        <cylinderGeometry args={[0.04, 0.04, 0.75]} />
         <meshStandardMaterial color="#b39b7d" />
       </mesh>
       {/* Text lines (stylized) */}

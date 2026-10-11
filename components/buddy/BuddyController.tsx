@@ -2,10 +2,19 @@
 
 import React, { useState, useEffect, Suspense, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Environment, ContactShadows } from '@react-three/drei'
+import { ContactShadows } from '@react-three/drei'
 import { buddyEvents, BuddyState } from '@/lib/buddy/events'
 import { Buddy3D } from './Buddy3D'
 import { BuddyProp } from './BuddyProp'
+
+class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
+  constructor(props: any) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(error: any) { return { hasError: true, error }; }
+  render() { 
+    if (this.state.hasError) return <div style={{background:'red',color:'white',padding:4}}>Error: {String(this.state.error)}</div>
+    return this.props.children
+  }
+}
 
 export function BuddyController() {
   const [state, setState] = useState<BuddyState>('IDLE')
@@ -84,6 +93,7 @@ export function BuddyController() {
           break
         case 'BUDDY_MAP_LOADING':
           setState('LOADING_MAP')
+          setTimeout(() => setState('IDLE'), 2500)
           break
         case 'BUDDY_REVIEWS_LOADING':
           setState('LOADING_REVIEWS')
@@ -170,12 +180,13 @@ export function BuddyController() {
       <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
         <ambientLight intensity={0.8} />
         <directionalLight position={[5, 10, 5]} intensity={1.5} />
-        <Environment preset="city" />
         
-        <Suspense fallback={null}>
-          <Buddy3D state={state} payload={payload} />
-          <BuddyProp state={state} />
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={null}>
+            <Buddy3D state={state} payload={payload} />
+            <BuddyProp state={state} />
+          </Suspense>
+        </ErrorBoundary>
         
         <ContactShadows position={[0, -2, 0]} opacity={0.4} scale={5} blur={2} />
       </Canvas>
